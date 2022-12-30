@@ -1,0 +1,12 @@
+@import "../assets/variable.scss";
+
+mat-toolbar ng-container,
+.right,
+.left {
+  display: flex;
+  align-items: center;
+}
+
+mat-toolbar {
+  justify-content: space-between;
+}

@@ -1,0 +1,37 @@
+$primary: hsl(345, 100%, 43%);
+$secondary: hsl(42, 100%, 71%);
+$error: #ff0000;
+
+$black: #000000;
+$darkGray: #171717;
+$grey: #444444;
+$white: #ededed;
+
+$primary-hvr: hsl(345, 100%, 38%);
+$secondary-hvr: #ffcb52;
+
+$primary-tr: #db003780;
+$secondary-tr: #ffd36b80;
+$grey-tr: #44444480;
+$white-tr: #ededed80;
+
+$danger: #ff0000;
+$success: $secondary;
+
+$spacing-XS: 8px;
+$spacing-S: 12px;
+$spacing-M: 24px;
+$spacing-L: 40px;
+$spacing-XL: 60px;
+$spacing-XXL: 105px;
+
+$haed-font: "Josefin Sans";
+$p-font: "Josefin Sans";
+
+$fontsize-H1: 64px;
+$fontsize-H2: 36px;
+$fontsize-p: 18px;
+
+$brd-radius: 0.2rem;
+
+$transition-ms: all ease-in-out 150ms;
