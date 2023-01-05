@@ -1,0 +1,46 @@
+@use "@angular/material" as material;
+
+@mixin app-lobby-typography($typography-config) {
+  app-lobby {
+    .message {
+      @include material.typography-level($typography-config, body-1);
+    }
+    .headding {
+      @include material.typography-level($typography-config, title);
+    }
+  }
+}
+
+@mixin app-lobby-theme($theme) {
+  $theme-colors: material.get-color-config($theme);
+  $typography: material.get-typography-config($theme);
+
+  $success-color-palette: map-get($theme, success);
+  $info-color-palette: map-get($theme, info);
+  $warn-color-palette: map-get($theme, warn);
+  $backgrounds: map-get($theme-colors, background);
+
+  @include app-lobby-typography($typography);
+
+  app-lobby {
+    background-color: material.get-color-from-palette($backgrounds, card);
+    &.app-lobby-success {
+      background-color: material.get-color-from-palette(
+        $success-color-palette,
+        lighter
+      );
+    }
+    &.app-lobby-info {
+      background-color: material.get-color-from-palette(
+        $info-color-palette,
+        lighter
+      );
+    }
+    &.app-lobby-warn {
+      background-color: material.get-color-from-palette(
+        $warn-color-palette,
+        lighter
+      );
+    }
+  }
+}

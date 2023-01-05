@@ -1,0 +1,11 @@
+@use "@angular/material" as material;
+
+@mixin app-root-theme($theme) {
+  $theme-colors: material.get-color-config($theme);
+  $backgrounds: map-get($theme-colors, background);
+
+  .body {
+    min-height: 100vh;
+    background-color: material.get-color-from-palette($backgrounds, background);
+  }
+}

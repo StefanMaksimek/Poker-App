@@ -1,19 +1,38 @@
 /* You can add global styles to this file, and also import other style files */
+@use "@angular/material" as material;
+@use "./app/main/lobby/lobby.component.scss-theme.scss" as lobby;
+@use "./app/app.component.scss-theme.scss" as root;
+@use "sass:map";
+@use "./assets/themes/dark.scss" as dark;
+@use "./assets/themes/light.scss" as light;
+@use "./assets/themes/neon.scss" as neon;
 
-html,
-body {
-  height: 100%;
+material.$theme-ignore-duplication-warnings: true;
+
+@include material.core();
+
+@mixin create-theme($workshop-theme) {
+  @include material.all-component-themes($workshop-theme);
+  @include lobby.app-lobby-theme($workshop-theme);
+  @include root.app-root-theme($workshop-theme);
 }
+
+@import "./assets/fonts/fonts.css";
+
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+.light {
+  @include create-theme(light.$workshop-theme);
+  font-family: "Roboto";
 }
 
-html,
-body {
-  height: 100%;
+.dark {
+  @include create-theme(dark.$workshop-theme);
+  font-family: "Josefin Sans";
 }
-body {
-  margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+
+.neon {
+  @include create-theme(neon.$workshop-theme);
+  font-family: "Megrim";
 }

@@ -1,25 +1,27 @@
-<mat-toolbar color="primary">
-  <ng-container>
-    <div class="left">
-      <a mat-button routerLink="">Home</a>
-      <a mat-button routerLink="lobby">Lobby</a>
-      <a mat-button routerLink="rules">Rules</a>
-    </div>
+<div class="body">
+  <mat-toolbar color="primary">
+    <ng-container>
+      <div class="left">
+        <a mat-button routerLink="">Home</a>
+        <a mat-button routerLink="lobby">Lobby</a>
+        <a mat-button routerLink="rules">Rules</a>
+      </div>
 
-    <div class="right">
-      <a mat-icon-button routerLink="settings">
-        <mat-icon>settings</mat-icon>
-      </a>
-      <a mat-icon-button routerLink="user">
-        <mat-icon>person</mat-icon>
-      </a>
-    </div>
-  </ng-container>
-</mat-toolbar>
+      <div class="right">
+        <a mat-icon-button routerLink="settings">
+          <mat-icon>settings</mat-icon>
+        </a>
+        <a mat-icon-button routerLink="user">
+          <mat-icon>person</mat-icon>
+        </a>
+      </div>
+    </ng-container>
+  </mat-toolbar>
 
-<router-outlet></router-outlet>
+  <router-outlet></router-outlet>
 
-<ng-template #authButtons>
-  <a routerLink="/signin" routerLinkActive="active" mat-button>Signin</a>
-  <a routerLink="/signup" routerLinkActive="active" mat-button>Signup</a>
-</ng-template>
+  <ng-template #authButtons>
+    <a routerLink="/signin" routerLinkActive="active" mat-button>Signin</a>
+    <a routerLink="/signup" routerLinkActive="active" mat-button>Signup</a>
+  </ng-template>
+</div>

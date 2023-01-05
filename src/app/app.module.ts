@@ -25,6 +25,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { RouterModule } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormContainerComponent } from './auth/form-container/form-container.component';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
 
 @NgModule({
   declarations: [
@@ -54,6 +57,9 @@ import { FormContainerComponent } from './auth/form-container/form-container.com
     RouterModule,
     MatSnackBarModule,
     ReactiveFormsModule,
+    MatSelectModule,
+    MatButtonToggleModule,
+    MatCardModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

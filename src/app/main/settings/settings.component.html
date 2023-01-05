@@ -1,1 +1,30 @@
-<p>settings works!</p>
+<div class="holder">
+  <div class="holder">
+    <mat-form-field appearance="fill">
+      <mat-label>Theme</mat-label>
+      <mat-select value="light" (selectionChange)="setThemeSelect($event)">
+        <mat-option value="light"> Light </mat-option>
+
+        <mat-option value="dark"> Dark </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <h1>setThemeSelect $event = {{ selection }}</h1>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="holder">
+    <mat-button-toggle-group
+      value="dark"
+      name="Theme"
+      (change)="setThemeToggle($event)"
+    >
+      <mat-button-toggle value="dark">Dark</mat-button-toggle>
+      <mat-button-toggle value="light">Light</mat-button-toggle>
+      <mat-button-toggle value="neon">Neon</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <h1>setThemeToggle $event = {{ toggle }}</h1>
+  </div>
+</div>
