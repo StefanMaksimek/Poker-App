@@ -1,0 +1,165 @@
+<div class="game">
+  <div class="action-holder">
+    <div class="top">
+      <button mat-flat-button color="primary" (click)="game.startNewRound()">
+        Start new round
+      </button>
+
+      <button mat-flat-button color="primary" (click)="renderFlop()">
+        50%
+      </button>
+
+      <button mat-flat-button color="primary" (click)="renderTurn()">
+        70%
+      </button>
+
+      <button mat-flat-button color="primary" (click)="renderRiver()">
+        Pot
+      </button>
+    </div>
+
+    <div class="middle">
+      <input value="400" type="number" />
+      <mat-slider min="0" max="{{ players[0].amount }}" step="1">
+        <input matSliderThumb />
+      </mat-slider>
+    </div>
+
+    <div class="bottom">
+      <button mat-flat-button (click)="fold()">
+        <div class="action-btn">
+          <span class="fold">Fold</span>
+        </div>
+      </button>
+
+      <button mat-flat-button>
+        <div class="action-btn">
+          <span>Call</span>
+          <span>200</span>
+        </div>
+      </button>
+
+      <button mat-flat-button>
+        <div class="action-btn">
+          <span>Raise to</span>
+          <span *ngIf="game.bet > 0">{{ game.bet * 2 }}</span>
+          <span *ngIf="game.bet == 0">{{ game.blinds[1] }}</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <div class="table-holder">
+    <div class="table">
+      <div class="pot">
+        <span> Pot: $37.24 </span>
+      </div>
+      <div class="comunity-cards">
+        <div class="flop">
+          <img
+            *ngFor="let card of game.flop"
+            src="../../../assets/img/cards/{{ card }}.png"
+          />
+        </div>
+
+        <div class="turn">
+          <img
+            *ngIf="game.turn.length > 0"
+            src="../../../assets/img/cards/{{ game.turn[0] }}.png"
+          />
+        </div>
+
+        <div class="river">
+          <img
+            *ngIf="game.river.length > 0"
+            src="../../../assets/img/cards/{{ game.river[0] }}.png"
+          />
+        </div>
+      </div>
+
+      <div
+        class="button"
+        [ngStyle]="{
+          transform:
+            'rotate(' +
+            placeAround(game.curentPlayer) +
+            'deg)' +
+            'translateX(20vw)' +
+            'rotate(-' +
+            placeAround(game.curentPlayer) +
+            'deg)' +
+            'rotateY(50deg)'
+        }"
+      >
+        D
+      </div>
+
+      <div
+        class="player"
+        *ngFor="let player of game.players; let i = index"
+        [ngStyle]="{
+          transform:
+            'rotate(' +
+            placeAround(i) +
+            'deg)' +
+            'translateX(30vw)' +
+            'rotate(-' +
+            placeAround(i) +
+            'deg)' +
+            'rotateY(50deg)',
+          filter:
+            player.actGames[game.id].actHand.length == 0
+              ? 'brightness(0.5)'
+              : 'brightness(1)'
+        }"
+      >
+        <div
+          *ngIf="
+            player.actGames[game.id].actHand.length > 0 &&
+            player.id == logedInUser.id
+          "
+          class="cards"
+        >
+          <div class="left">
+            <img
+              src="../../../assets/img/cards/{{
+                player.actGames[game.id].actHand[0]
+              }}.png"
+              alt=""
+            />
+          </div>
+
+          <div class="right">
+            <img
+              src="../../../assets/img/cards/{{
+                player.actGames[game.id].actHand[1]
+              }}.png"
+              alt=""
+            />
+          </div>
+        </div>
+
+        <div *ngIf="player.id != logedInUser.id" class="cards">
+          <div class="left">
+            <img src="../../../assets/img/cards/overlay_red.png" alt="" />
+          </div>
+
+          <div class="right">
+            <img src="../../../assets/img/cards/overlay_red.png" alt="" />
+          </div>
+        </div>
+
+        <img
+          class="player-img"
+          src="../../../assets/img/player_icons/{{ player.image }}"
+          alt=""
+        />
+
+        <div class="info" [ngStyle]="{ 'background-color': player.color }">
+          <span class="name">{{ player.name }}</span>
+          <span class="chipscount">{{ player.actGames[game.id].stack }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

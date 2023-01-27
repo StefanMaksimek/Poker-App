@@ -1,0 +1,172 @@
+@import "../../../assets/variable.scss";
+.game {
+  height: calc(100vh - $spacing-XL);
+
+  .action-holder {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    bottom: 0;
+    right: 0;
+    z-index: 999;
+    padding: $spacing-S;
+    div {
+      margin: $spacing-S;
+    }
+    button {
+      margin-right: $spacing-XS;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+    .top,
+    .middle {
+      display: flex;
+      justify-content: flex-end;
+      width: 300px;
+    }
+
+    .middle {
+      padding: $spacing-XS $spacing-S;
+      background-color: $secondary;
+      border-radius: 0.2rem;
+      mat-slider {
+        margin-left: $spacing-M;
+        width: 70%;
+      }
+      input {
+        width: 30%;
+      }
+    }
+    .bottom {
+      display: flex;
+      justify-content: flex-end;
+
+      button {
+        margin: 0 0 0 $spacing-XS;
+        padding: $spacing-XS $spacing-L;
+        height: auto;
+        background-color: $secondary;
+        color: $black;
+        font-weight: bold;
+        font-size: 24px;
+        line-height: normal;
+        .action-btn {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          .fold {
+            font-size: 32px;
+          }
+        }
+      }
+    }
+  }
+  .table-holder {
+    position: relative;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .table {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 50vw;
+      width: 50vw;
+      background-color: rgb(47, 104, 67);
+      border-radius: 50%;
+      border: 30px solid black;
+      box-shadow: 0px 16px 16px 10px #00000042;
+      transform: rotateX(50deg);
+    }
+    .pot {
+      transform: translateY(-100px);
+      font-size: 3rem;
+      color: $black;
+      button {
+        margin-left: $spacing-XS;
+      }
+    }
+    .comunity-cards {
+      display: flex;
+      transform: translateY(-50%);
+      img {
+        height: 150px;
+        transform: rotateY(50deg);
+      }
+      .turn,
+      .river {
+        margin-left: $spacing-XS;
+      }
+    }
+    .position {
+      position: absolute;
+      background-color: red;
+      width: 100px;
+      height: 100px;
+    }
+    .button {
+      position: absolute;
+      background-color: red;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid $white-tr;
+      box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 32px;
+      z-index: 900;
+    }
+    .player {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      transform: translate(-50%, -100%);
+
+      .cards {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        display: flex;
+        transform: translate(-75%, -30%);
+        img {
+          height: 160px;
+          z-index: 1;
+        }
+      }
+      .player-img {
+        z-index: 10;
+        width: 140px;
+        height: 140px;
+        border-radius: 100%;
+        border: 3px solid $white;
+        background-color: green;
+      }
+      .info {
+        z-index: 5;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 120px;
+        min-width: 320px;
+        transform: translateX(-120px);
+        border-radius: 5rem;
+        border: 3px solid $white;
+        span {
+          padding: 11px 30px 8px 130px;
+          font-size: 2rem;
+        }
+        .name {
+          border-bottom: 2px solid $white;
+        }
+      }
+    }
+  }
+}

@@ -28,6 +28,9 @@ import { FormContainerComponent } from './auth/form-container/form-container.com
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { GameComponent } from './main/game/game.component';
+import { MatSliderModule } from '@angular/material/slider';
 
 @NgModule({
   declarations: [
@@ -40,6 +43,7 @@ import { MatCardModule } from '@angular/material/card';
     RulesComponent,
     SettingsComponent,
     FormContainerComponent,
+    GameComponent,
   ],
   imports: [
     BrowserModule,
@@ -60,6 +64,8 @@ import { MatCardModule } from '@angular/material/card';
     MatSelectModule,
     MatButtonToggleModule,
     MatCardModule,
+    MatSidenavModule,
+    MatSliderModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

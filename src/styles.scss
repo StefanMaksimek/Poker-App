@@ -3,9 +3,9 @@
 @use "./app/main/lobby/lobby.component.scss-theme.scss" as lobby;
 @use "./app/app.component.scss-theme.scss" as root;
 @use "sass:map";
-@use "./assets/themes/dark.scss" as dark;
-@use "./assets/themes/light.scss" as light;
-@use "./assets/themes/neon.scss" as neon;
+@use "./themes/dark.scss" as dark;
+@use "./themes/light.scss" as light;
+@use "./themes/neon.scss" as neon;
 
 material.$theme-ignore-duplication-warnings: true;
 
@@ -15,11 +15,18 @@ material.$theme-ignore-duplication-warnings: true;
   @include material.all-component-themes($workshop-theme);
   @include lobby.app-lobby-theme($workshop-theme);
   @include root.app-root-theme($workshop-theme);
+
+  $theme-colors: material.get-color-config($workshop-theme);
+  $backgrounds: map-get($theme-colors, background);
 }
 
 @import "./assets/fonts/fonts.css";
-
+body,
+html {
+  height: 100%;
+}
 body {
+  min-height: 100vh;
   margin: 0;
 }
 .light {

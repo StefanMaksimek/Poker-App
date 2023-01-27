@@ -31,7 +31,7 @@ $workshop-typography: material.define-legacy-typography-config(
     material.define-typography-level(15px, 24px, 500, "Megrim", 0.0067em),
   $body-2: material.define-typography-level(14px, 24px, 500, "Megrim", 0.0179em),
   $body-1: material.define-typography-level(14px, 20px, 400, "Megrim", 0.0179em),
-  $button: material.define-typography-level(14px, 14px, 500, "Megrim", 0.0893em),
+  $button: material.define-typography-level(14px, 14px, 500, "Roboto", 0.0893em),
   $caption:
     material.define-typography-level(12px, 20px, 400, "Megrim", 0.0333em),
   $input: material.define-typography-level(inherit, 1.125, 400, "Megrim", 1.5px),

@@ -15,19 +15,12 @@ import { MatSelectChange } from '@angular/material/select';
   styleUrls: ['./settings.component.scss'],
 })
 export class SettingsComponent {
-  selection: 'light' | 'dark' = 'light';
-  @HostBinding('class') toggle: 'dark' | 'light' | 'neon' = 'dark';
+  toggle: 'dark' | 'light' | 'neon' = 'dark';
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2
   ) {}
-
-  setThemeSelect({ source }: MatSelectChange) {
-    this.selection = source.value;
-    this.renderer.removeAttribute(this.document.body, 'class');
-    this.renderer.addClass(this.document.body, this.selection);
-  }
 
   setThemeToggle({ source }: MatButtonToggleChange) {
     this.toggle = source.value;

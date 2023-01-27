@@ -3,9 +3,11 @@
 @mixin app-root-theme($theme) {
   $theme-colors: material.get-color-config($theme);
   $backgrounds: map-get($theme-colors, background);
+  $foreground: map-get($theme-colors, foreground);
 
   .body {
     min-height: 100vh;
     background-color: material.get-color-from-palette($backgrounds, background);
+    color: material.get-color-from-palette($foreground, text);
   }
 }

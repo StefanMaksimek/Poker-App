@@ -9,4 +9,5 @@ mat-toolbar ng-container,
 
 mat-toolbar {
   justify-content: space-between;
+  height: $spacing-XL !important;
 }
