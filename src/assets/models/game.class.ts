@@ -1,27 +1,33 @@
+import { GamelogicsService } from 'src/app/Services/gamelogics.service';
+
 export class Game {
-  public id: any = 'lksfhjvjf4b534f3dg54b3ds';
+  public id: any = '815';
   public maxPlayer: number = 9;
   public startingStack: number = 30000;
   public json = this.toJson();
 
   public players: Array<any> = [];
+  public curentPlayerRound: number = 0;
   public playerInRound: any[] = [];
-  public curentPlayer: number = 1;
+  public curentPlayerInRound: number = 0;
 
   public playingStack: any = [];
   public flop: string[] = [];
   public turn: string[] = [];
   public river: string[] = [];
+  public endOfRound: boolean = true;
 
   public blinds: number[] = [50, 100];
-  public bet: number = 0;
+  public bets: string[] = [];
+  public lastBet: number = 300;
+  public pot: number = 7000;
 
-  constructor() {}
+  constructor(private gameLog: GamelogicsService) {}
   public toJson() {
     return {
       players: this.players,
       playerInRound: this.playerInRound,
-      curentPlayer: this.curentPlayer,
+      curentPlayerInRound: this.curentPlayerInRound,
 
       playingStack: this.playingStack,
       flop: this.flop,
@@ -29,8 +35,137 @@ export class Game {
       river: this.river,
 
       blinds: this.blinds,
-      bet: this.bet,
+      lastBet: this.lastBet,
     };
+  }
+
+  startNewRound() {
+    this.playerInRound = [];
+    this.players.forEach((player) => {
+      this.playerInRound.push(player.actGames[this.id].seat);
+      player.actGames[this.id].actHand = [];
+      player.actGames[this.id].bet = 0;
+    });
+    this.renderStack();
+    this.dealCards();
+    this.pot = 0;
+    this.nextPlayerAfterRound();
+    this.lastBet = this.blinds[1];
+  }
+
+  newBetRound() {
+    if (this.river.length > 0) {
+      //this.startNewRound();
+      this.checkWinningHand();
+    } else {
+      if (this.flop.length == 0) {
+        this.renderFlop();
+      } else if (this.turn.length == 0) {
+        this.renderTurn();
+      } else if (this.renderRiver.length == 0) {
+        this.renderRiver();
+      }
+
+      this.players.forEach((player) => {
+        player.actGames[this.id].bet = 0;
+        player.actGames[this.id].isBB = false;
+        player.actGames[this.id].checked = false;
+      });
+      this.lastBet = 0;
+      this.curentPlayerInRound = this.curentPlayerRound;
+      this.nextPlayerInRound();
+    }
+  }
+
+  nextPlayerInRound() {
+    let player = this.players[this.curentPlayerInRound].actGames[this.id];
+
+    if (this.checkHandsInGame() < 3) {
+      this.startNewRound();
+    } else {
+      this.curentPlayerInRound == this.playerInRound.length - 1
+        ? (this.curentPlayerInRound = 0)
+        : this.curentPlayerInRound++;
+
+      if (this.noHand(this.curentPlayerInRound)) {
+        this.nextPlayerInRound();
+      }
+    }
+  }
+
+  nextPlayerAfterRound() {
+    this.curentPlayerRound == this.players.length - 1
+      ? (this.curentPlayerRound = 0)
+      : this.curentPlayerRound++;
+    this.curentPlayerInRound = this.curentPlayerRound;
+    this.nextPlayerInRound();
+    this.setBlinds(this.curentPlayerInRound, 0);
+    this.nextPlayerInRound();
+    this.setBlinds(this.curentPlayerInRound, 1);
+    this.nextPlayerInRound();
+  }
+
+  renderFlop() {
+    this.playingStack.pop();
+    this.flop.push(this.playingStack.pop());
+    this.flop.push(this.playingStack.pop());
+    this.flop.push(this.playingStack.pop());
+  }
+
+  renderTurn() {
+    this.playingStack.pop();
+    this.turn.push(this.playingStack.pop());
+  }
+
+  renderRiver() {
+    this.playingStack.pop();
+    this.river.push(this.playingStack.pop());
+  }
+
+  renderStack() {
+    this.gameLog.renderPlayingStack();
+    this.playingStack = [];
+    this.flop = [];
+    this.turn = [];
+    this.river = [];
+    this.playingStack = this.gameLog.playingStack;
+  }
+
+  dealCards() {
+    for (let i = 0; i < 2; i++) this.dealCardToPlayer();
+  }
+
+  dealCardToPlayer() {
+    for (let i = 0; i < this.players.length; i++) {
+      this.players[i].actGames[this.id].actHand.push(this.playingStack.pop());
+    }
+  }
+
+  setBlinds(seat: number, blind: number) {
+    let player = this.players[seat].actGames[this.id];
+
+    player.bet = this.blinds[blind];
+    player.stack = player.stack - this.blinds[blind];
+    if (blind == 1) {
+      player.isBB = true;
+    }
+    this.pot = this.blinds[0] + this.blinds[1];
+  }
+
+  setGameInfoToPlayer() {
+    let id = this.id;
+    this.players.forEach((player, index) => {
+      player.actGames[id] = {
+        stack: this.startingStack,
+        actHand: [],
+        usedCards: [],
+        hand: '',
+        seat: index,
+        bet: 300,
+        isBB: false,
+        checked: false,
+      };
+    });
   }
 
   loadImages() {
@@ -40,29 +175,80 @@ export class Game {
     });
   }
 
-  setGameInfoToPlayer() {
-    let id = this.id;
-    this.players.forEach((player, index) => {
-      player.actGames[id] = {
-        stack: this.startingStack,
-        actHand: ['clubs_1', 'hearts_1'],
-      };
-      player.actGames[id + 4] = {
-        stack: this.startingStack * (index + 1),
-        actHand: [],
-      };
+  noHand(actPlayer: number) {
+    return this.players[actPlayer].actGames[this.id].actHand.length == 0;
+  }
+
+  checkHandsInGame() {
+    let hands = 0;
+    this.players.forEach((player) => {
+      hands = hands + player.actGames[this.id].actHand.length;
+    });
+
+    return hands;
+  }
+  checkWinningHand() {
+    this.endOfRound = true;
+    this.players.forEach((player) => {
+      this.setUsedHand(player);
+      player.actGames[this.id].usedCards.sort(this.sortByRank);
+
+      if (player.actGames[this.id].hand.length > 0) {
+        console.log(player.actGames[this.id].usedCards);
+        player.actGames[this.id].hand = this.gameLog.handAnalyzer(
+          player.actGames[this.id].usedCards
+        );
+        console.log(player.actGames[this.id].hand, player.name);
+      }
     });
   }
 
-  startNewRound() {
-    this.playerInRound = [];
-    this.playerInRound = this.players;
-    this.nextPlayer();
+  sortByRank(a: any, b: any) {
+    let ordering: any = {}; // map for efficient lookup of sortIndex
+    let colorOrdering: any = {}; // map for efficient lookup of sortIndex
+    let cards = {
+      colors: ['C', 'S', 'D', 'H'],
+      numbers: [
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        't',
+        'j',
+        'q',
+        'k',
+        'a',
+      ],
+    };
+
+    cards.numbers.forEach((rank: any, index: number) => {
+      ordering[rank] = index;
+    });
+    cards.colors.forEach((rank, index) => {
+      colorOrdering[rank] = index;
+    });
+    return (
+      ordering[a.charAt(1)] - ordering[b.charAt(1)] ||
+      colorOrdering[a.charAt(0)] - colorOrdering[b.charAt(0)]
+    );
   }
 
-  nextPlayer() {
-    this.curentPlayer == this.playerInRound.length - 1
-      ? (this.curentPlayer = 0)
-      : this.curentPlayer++;
+  setUsedHand(player: any) {
+    player.actGames[this.id].usedCards.push(this.flop[0]);
+    player.actGames[this.id].usedCards.push(this.flop[1]);
+    player.actGames[this.id].usedCards.push(this.flop[2]);
+    player.actGames[this.id].usedCards.push(this.turn[0]);
+    player.actGames[this.id].usedCards.push(this.river[0]);
+    player.actGames[this.id].usedCards.push(
+      player.actGames[this.id].actHand[0]
+    );
+    player.actGames[this.id].usedCards.push(
+      player.actGames[this.id].actHand[1]
+    );
+    player.actGames[this.id].usedCards.sort();
   }
 }

@@ -1,58 +1,291 @@
 <div class="game">
-  <div class="action-holder">
-    <div class="top">
-      <button mat-flat-button color="primary" (click)="game.startNewRound()">
-        Start new round
-      </button>
+  <div class="test-buttons">
+    <button mat-flat-button color="primary" (click)="game.startNewRound()">
+      Start new round
+    </button>
 
-      <button mat-flat-button color="primary" (click)="renderFlop()">
-        50%
-      </button>
+    <button mat-flat-button color="primary" (click)="game.renderFlop()">
+      Flop
+    </button>
 
-      <button mat-flat-button color="primary" (click)="renderTurn()">
-        70%
-      </button>
+    <button mat-flat-button color="primary" (click)="game.renderTurn()">
+      Turn
+    </button>
 
-      <button mat-flat-button color="primary" (click)="renderRiver()">
-        Pot
+    <button mat-flat-button color="primary" (click)="game.renderRiver()">
+      River
+    </button>
+
+    <button mat-flat-button color="primary" (click)="test()">test</button>
+    <button mat-flat-button color="primary" (click)="test2()">Test2</button>
+  </div>
+
+  <div
+    class="action-holder"
+    *ngIf="game.players[game.curentPlayerInRound].id == logedInUser.id"
+  >
+    <div
+      class="top"
+      *ngIf="
+        game.lastBet -
+          game.players[game.curentPlayerInRound].actGames[game.id].bet <
+        game.players[game.curentPlayerInRound].actGames[game.id].stack
+      "
+    >
+      <button mat-flat-button color="primary" (click)="setBet(33)">33%</button>
+
+      <button mat-flat-button color="primary" (click)="setBet(50)">50%</button>
+
+      <button mat-flat-button color="primary" (click)="setBet(100)">Pot</button>
+
+      <button mat-flat-button color="primary" (click)="setBet(200)">
+        2x Pot
       </button>
     </div>
 
-    <div class="middle">
-      <input value="400" type="number" />
-      <mat-slider min="0" max="{{ players[0].amount }}" step="1">
-        <input matSliderThumb />
+    <div
+      class="middle"
+      *ngIf="
+        game.lastBet -
+          game.players[game.curentPlayerInRound].actGames[game.id].bet <
+        game.players[game.curentPlayerInRound].actGames[game.id].stack
+      "
+    >
+      <input [(ngModel)]="betValue" />
+      <mat-slider
+        min="{{ game.lastBet > 0 ? game.lastBet * 2 : game.blinds[1] }}"
+        max="{{ game.players[0].actGames[815].stack }}"
+        step="1"
+      >
+        <input matSliderThumb [(ngModel)]="betValue" />
       </mat-slider>
     </div>
 
     <div class="bottom">
-      <button mat-flat-button (click)="fold()">
+      <button mat-flat-button (click)="fold()" *ngIf="game.lastBet > 0">
         <div class="action-btn">
           <span class="fold">Fold</span>
         </div>
       </button>
 
-      <button mat-flat-button>
+      <button
+        *ngIf="
+          game.lastBet -
+            game.players[game.curentPlayerInRound].actGames[game.id].bet !=
+          0
+        "
+        mat-flat-button
+        (click)="call()"
+      >
         <div class="action-btn">
           <span>Call</span>
-          <span>200</span>
+          <span
+            *ngIf="
+              game.lastBet -
+                game.players[game.curentPlayerInRound].actGames[game.id].bet <
+              game.players[game.curentPlayerInRound].actGames[game.id].stack
+            "
+            >{{
+              game.lastBet -
+                game.players[game.curentPlayerInRound].actGames[game.id].bet
+            }}</span
+          >
+
+          <span
+            *ngIf="
+              game.lastBet -
+                game.players[game.curentPlayerInRound].actGames[game.id].bet >=
+              game.players[game.curentPlayerInRound].actGames[game.id].stack
+            "
+          >
+            All In
+          </span>
         </div>
       </button>
 
-      <button mat-flat-button>
+      <button
+        mat-flat-button
+        (click)="check()"
+        *ngIf="
+          game.lastBet -
+            game.players[game.curentPlayerInRound].actGames[game.id].bet ==
+          0
+        "
+      >
         <div class="action-btn">
-          <span>Raise to</span>
-          <span *ngIf="game.bet > 0">{{ game.bet * 2 }}</span>
-          <span *ngIf="game.bet == 0">{{ game.blinds[1] }}</span>
+          <span>Check</span>
         </div>
       </button>
+
+      <button
+        mat-flat-button
+        (click)="bet()"
+        *ngIf="
+          game.lastBet -
+            game.players[game.curentPlayerInRound].actGames[game.id].bet <
+          game.players[game.curentPlayerInRound].actGames[game.id].stack
+        "
+      >
+        <div *ngIf="game.lastBet > 0" class="action-btn">
+          <span>Raise to</span>
+          <span>{{ betValue }}</span>
+        </div>
+
+        <div *ngIf="game.lastBet == 0" class="action-btn">
+          <span>Bet</span>
+          <span>{{ betValue }}</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <div class="action-holder-tester">
+    <div
+      class="top"
+      *ngIf="
+        game.lastBet -
+          game.players[game.curentPlayerInRound].actGames[game.id].bet <
+        game.players[game.curentPlayerInRound].actGames[game.id].stack
+      "
+    >
+      <button mat-flat-button color="primary" (click)="setBet(33)">33%</button>
+
+      <button mat-flat-button color="primary" (click)="setBet(50)">50%</button>
+
+      <button mat-flat-button color="primary" (click)="setBet(100)">Pot</button>
+
+      <button mat-flat-button color="primary" (click)="setBet(200)">
+        2x Pot
+      </button>
+    </div>
+
+    <div
+      class="middle"
+      *ngIf="
+        game.lastBet <
+        game.players[game.curentPlayerInRound].actGames[game.id].stack
+      "
+    >
+      <input [(ngModel)]="betValue" />
+      <mat-slider
+        min="{{ calcMinBet() }}"
+        max="{{ game.players[game.curentPlayerInRound].actGames[815].stack }}"
+        step="1"
+      >
+        <input matSliderThumb [(ngModel)]="betValue" />
+      </mat-slider>
+    </div>
+
+    <div class="bottom">
+      <button
+        mat-flat-button
+        (click)="fold()"
+        *ngIf="
+          game.lastBet > 0 &&
+          game.players[game.curentPlayerInRound].actGames[game.id].bet !=
+            game.lastBet
+        "
+      >
+        <div class="action-btn">
+          <span class="fold">Fold</span>
+        </div>
+      </button>
+
+      <button
+        *ngIf="
+          game.lastBet -
+            game.players[game.curentPlayerInRound].actGames[game.id].bet !=
+          0
+        "
+        mat-flat-button
+        (click)="call()"
+      >
+        <div class="action-btn">
+          <span>Call</span>
+          <span
+            *ngIf="
+              game.lastBet -
+                game.players[game.curentPlayerInRound].actGames[game.id].bet <
+              game.players[game.curentPlayerInRound].actGames[game.id].stack
+            "
+            >{{
+              game.lastBet -
+                game.players[game.curentPlayerInRound].actGames[game.id].bet
+            }}</span
+          >
+
+          <span
+            *ngIf="
+              game.lastBet -
+                game.players[game.curentPlayerInRound].actGames[game.id].bet >=
+              game.players[game.curentPlayerInRound].actGames[game.id].stack
+            "
+          >
+            All In
+          </span>
+        </div>
+      </button>
+
+      <button
+        mat-flat-button
+        (click)="check()"
+        *ngIf="
+          game.lastBet -
+            game.players[game.curentPlayerInRound].actGames[game.id].bet ==
+          0
+        "
+      >
+        <div class="action-btn">
+          <span>Check</span>
+        </div>
+      </button>
+
+      <button
+        mat-flat-button
+        (click)="bet()"
+        *ngIf="
+          game.lastBet -
+            game.players[game.curentPlayerInRound].actGames[game.id].bet <
+          game.players[game.curentPlayerInRound].actGames[game.id].stack
+        "
+      >
+        <div *ngIf="game.lastBet > 0" class="action-btn">
+          <span>Raise to</span>
+          <span>{{ betValue }}</span>
+        </div>
+
+        <div *ngIf="game.lastBet == 0" class="action-btn">
+          <span>Bet</span>
+          <span>{{ betValue }}</span>
+        </div>
+      </button>
+    </div>
+
+    <div class="cards">
+      <div class="left">
+        <img
+          src="../../../assets/img/cards/{{
+            game.players[game.curentPlayerInRound].actGames[game.id].actHand[0]
+          }}.png"
+          alt=""
+        />
+      </div>
+
+      <div class="right">
+        <img
+          src="../../../assets/img/cards/{{
+            game.players[game.curentPlayerInRound].actGames[game.id].actHand[1]
+          }}.png"
+          alt=""
+        />
+      </div>
     </div>
   </div>
 
   <div class="table-holder">
     <div class="table">
       <div class="pot">
-        <span> Pot: $37.24 </span>
+        <span> Pot: ${{ game.pot }}</span>
       </div>
       <div class="comunity-cards">
         <div class="flop">
@@ -78,20 +311,83 @@
       </div>
 
       <div
+        *ngIf="game.playerInRound.length > 0"
         class="button"
         [ngStyle]="{
           transform:
             'rotate(' +
-            placeAround(game.curentPlayer) +
+            placeAround(game.curentPlayerRound) +
             'deg)' +
             'translateX(20vw)' +
             'rotate(-' +
-            placeAround(game.curentPlayer) +
+            placeAround(game.curentPlayerRound) +
             'deg)' +
             'rotateY(50deg)'
         }"
       >
         D
+      </div>
+
+      <div
+        *ngIf="game.playerInRound.length > 0"
+        class="button"
+        [ngStyle]="{
+          transform:
+            'rotate(' +
+            placeAround(game.curentPlayerRound + 1) +
+            'deg)' +
+            'translateX(20vw)' +
+            'rotate(-' +
+            placeAround(game.curentPlayerRound + 1) +
+            'deg)' +
+            'rotateY(50deg)',
+          'background-color': 'blue'
+        }"
+      >
+        SB
+      </div>
+
+      <div
+        *ngIf="game.playerInRound.length > 0"
+        class="button"
+        [ngStyle]="{
+          transform:
+            'rotate(' +
+            placeAround(game.curentPlayerRound + 2) +
+            'deg)' +
+            'translateX(20vw)' +
+            'rotate(-' +
+            placeAround(game.curentPlayerRound + 2) +
+            'deg)' +
+            'rotateY(50deg)',
+          'background-color': 'blue'
+        }"
+      >
+        BB
+      </div>
+
+      <div
+        class="bet-holder"
+        *ngFor="let player of game.players; let i = index"
+      >
+        <div
+          *ngIf="player.actGames[game.id].bet > 0"
+          class="bet"
+          [ngStyle]="{
+            transform:
+              'rotate(' +
+              (placeAround(i) + 10) +
+              'deg)' +
+              'translateX(20vw)' +
+              'rotate(-' +
+              (placeAround(i) + 10) +
+              'deg)' +
+              'rotateY(50deg)',
+            'background-color': player.color
+          }"
+        >
+          {{ player.actGames[game.id].bet }}
+        </div>
       </div>
 
       <div
@@ -139,7 +435,13 @@
           </div>
         </div>
 
-        <div *ngIf="player.id != logedInUser.id" class="cards">
+        <div
+          *ngIf="
+            player.id != logedInUser.id &&
+            player.actGames[game.id].actHand.length > 0
+          "
+          class="cards"
+        >
           <div class="left">
             <img src="../../../assets/img/cards/overlay_red.png" alt="" />
           </div>
@@ -153,11 +455,57 @@
           class="player-img"
           src="../../../assets/img/player_icons/{{ player.image }}"
           alt=""
+          [ngStyle]="{
+            'box-shadow':
+              player.actGames[game.id].seat ==
+              game.playerInRound[game.curentPlayerInRound]
+                ? '#ffffff40 -5px 0px 7px 2px'
+                : 'unset'
+          }"
         />
 
-        <div class="info" [ngStyle]="{ 'background-color': player.color }">
+        <div
+          class="info"
+          [ngStyle]="{
+            'background-color': player.color,
+            'box-shadow':
+              player.actGames[game.id].seat ==
+              game.playerInRound[game.curentPlayerInRound]
+                ? '#ffffff40 4px 0px 10px 11px'
+                : 'unset'
+          }"
+        >
           <span class="name">{{ player.name }}</span>
-          <span class="chipscount">{{ player.actGames[game.id].stack }}</span>
+          <span class="chipscount" *ngIf="player.actGames[game.id].stack > 0">{{
+            player.actGames[game.id].stack
+          }}</span>
+          <span class="chipscount" *ngIf="player.actGames[game.id].stack == 0"
+            >All In</span
+          >
+          <span class="chipscount" *ngIf="player.actGames[game.id].stack < 0"
+            >ERROR {{ player.actGames[game.id].stack }}</span
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="winning-hand" *ngIf="game.endOfRound">
+    <div class="community-cards">
+      <span
+        >Flop: {{ game.flop[0] }} - {{ game.flop[1] }} -
+        {{ game.flop[2] }}</span
+      >
+      <span>Turn: {{ game.turn[0] }}</span>
+      <span>River: {{ game.river[0] }}</span>
+    </div>
+
+    <div class="hands">
+      <div class="hand-holder" *ngFor="let player of game.players">
+        <div class="hand" *ngIf="player.actGames[game.id].actHand.length > 0">
+          <span> {{ player.name }} </span>
+          <span>Card: {{ player.actGames[game.id].actHand[0] }}</span>
+          <span>Card: {{ player.actGames[game.id].actHand[1] }}</span>
         </div>
       </div>
     </div>

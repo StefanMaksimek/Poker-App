@@ -1,7 +1,86 @@
 @import "../../../assets/variable.scss";
 .game {
   height: calc(100vh - $spacing-XL);
+  position: relative;
 
+  .test-buttons {
+    position: absolute;
+    z-index: 9999;
+    top: 20px;
+    display: flex;
+    justify-content: center;
+    button {
+      margin: 8px;
+    }
+  }
+
+  .action-holder-tester {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    top: 0;
+    right: 0;
+    z-index: 999;
+    padding: $spacing-S;
+    div {
+      margin: $spacing-S;
+    }
+    button {
+      margin-right: $spacing-XS;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+    .top,
+    .middle {
+      display: flex;
+      justify-content: flex-end;
+      width: 300px;
+    }
+
+    .middle {
+      padding: $spacing-XS $spacing-S;
+      background-color: $secondary;
+      border-radius: 0.2rem;
+      mat-slider {
+        margin-left: $spacing-M;
+        width: 70%;
+      }
+      input {
+        width: 30%;
+        background-color: transparent;
+        border: 2px solid black;
+        border-radius: 0.2rem;
+        text-align: center;
+        font-size: 18px;
+      }
+    }
+    .bottom {
+      display: flex;
+      justify-content: flex-end;
+
+      button {
+        margin: 0 0 0 $spacing-XS;
+        padding: $spacing-XS $spacing-L;
+        height: auto;
+        background-color: $secondary;
+        color: $black;
+        font-weight: bold;
+        font-size: 24px;
+        line-height: normal;
+        .action-btn {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          .fold {
+            font-size: 32px;
+          }
+        }
+      }
+    }
+  }
   .action-holder {
     position: absolute;
     display: flex;
@@ -37,6 +116,11 @@
       }
       input {
         width: 30%;
+        background-color: transparent;
+        border: 2px solid black;
+        border-radius: 0.2rem;
+        text-align: center;
+        font-size: 18px;
       }
     }
     .bottom {
@@ -124,11 +208,26 @@
       font-size: 32px;
       z-index: 900;
     }
+    .bet-holder {
+      position: absolute;
+
+      .bet {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 2px solid $white-tr;
+        box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.2);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 32px;
+        background-color: rgb(230, 84, 51);
+      }
+    }
     .player {
       position: absolute;
       display: flex;
       align-items: center;
-      transform: translate(-50%, -100%);
 
       .cards {
         position: absolute;
@@ -165,6 +264,53 @@
         }
         .name {
           border-bottom: 2px solid $white;
+        }
+      }
+    }
+  }
+  .winning-hand {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+    .community-cards {
+      margin: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: rgb(40, 35, 35);
+      height: 200px;
+      span {
+        padding: 12px;
+      }
+    }
+    .hands {
+      background-color: rgb(74, 97, 97);
+      max-width: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      .hand-holder {
+        margin: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(40, 35, 35);
+        .hand {
+          padding: 12px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          background-color: rgb(32, 102, 118);
+          span {
+            padding: 12px;
+          }
         }
       }
     }

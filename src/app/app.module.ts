@@ -19,7 +19,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { RouterModule } from '@angular/router';
@@ -66,6 +66,7 @@ import { MatSliderModule } from '@angular/material/slider';
     MatCardModule,
     MatSidenavModule,
     MatSliderModule,
+    FormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
