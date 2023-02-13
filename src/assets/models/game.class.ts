@@ -15,7 +15,7 @@ export class Game {
   public flop: string[] = [];
   public turn: string[] = [];
   public river: string[] = [];
-  public endOfRound: boolean = true;
+  public endOfRound: boolean = false;
 
   public blinds: number[] = [50, 100];
   public bets: string[] = [];
@@ -158,6 +158,7 @@ export class Game {
       player.actGames[id] = {
         stack: this.startingStack,
         actHand: [],
+        possibleCards: [],
         usedCards: [],
         hand: '',
         seat: index,
@@ -188,67 +189,52 @@ export class Game {
     return hands;
   }
   checkWinningHand() {
+    let colorRanks = this.gameLog.cards.colors;
+    let numberRanks = this.gameLog.cards.numbers;
+
     this.endOfRound = true;
     this.players.forEach((player) => {
       this.setUsedHand(player);
-      player.actGames[this.id].usedCards.sort(this.sortByRank);
 
-      if (player.actGames[this.id].hand.length > 0) {
-        console.log(player.actGames[this.id].usedCards);
-        player.actGames[this.id].hand = this.gameLog.handAnalyzer(
-          player.actGames[this.id].usedCards
+      player.actGames[this.id].possibleCards.sort(function (a: any, b: any) {
+        return (
+          numberRanks.indexOf(a.charAt(1)) - numberRanks.indexOf(b.charAt(1)) ||
+          colorRanks.indexOf(a.charAt(0)) - colorRanks.indexOf(b.charAt(0))
         );
-        console.log(player.actGames[this.id].hand, player.name);
+      });
+
+      if (player.actGames[this.id].actHand.length > 0) {
+        player.actGames[this.id].hand = this.gameLog.handAnalyzer(
+          player.actGames[this.id].possibleCards
+        );
+        console.log(
+          'Player: ',
+          player.name,
+          'possibleCards',
+          player.actGames[this.id].possibleCards
+        );
+        console.log(
+          'Player: ',
+          player.name,
+          'Hand',
+          player.actGames[this.id].hand
+        );
       }
     });
   }
 
-  sortByRank(a: any, b: any) {
-    let ordering: any = {}; // map for efficient lookup of sortIndex
-    let colorOrdering: any = {}; // map for efficient lookup of sortIndex
-    let cards = {
-      colors: ['C', 'S', 'D', 'H'],
-      numbers: [
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7',
-        '8',
-        '9',
-        't',
-        'j',
-        'q',
-        'k',
-        'a',
-      ],
-    };
-
-    cards.numbers.forEach((rank: any, index: number) => {
-      ordering[rank] = index;
-    });
-    cards.colors.forEach((rank, index) => {
-      colorOrdering[rank] = index;
-    });
-    return (
-      ordering[a.charAt(1)] - ordering[b.charAt(1)] ||
-      colorOrdering[a.charAt(0)] - colorOrdering[b.charAt(0)]
-    );
-  }
-
   setUsedHand(player: any) {
-    player.actGames[this.id].usedCards.push(this.flop[0]);
-    player.actGames[this.id].usedCards.push(this.flop[1]);
-    player.actGames[this.id].usedCards.push(this.flop[2]);
-    player.actGames[this.id].usedCards.push(this.turn[0]);
-    player.actGames[this.id].usedCards.push(this.river[0]);
-    player.actGames[this.id].usedCards.push(
+    player.actGames[this.id].possibleCards.push(this.flop[0]);
+    player.actGames[this.id].possibleCards.push(this.flop[1]);
+    player.actGames[this.id].possibleCards.push(this.flop[2]);
+    player.actGames[this.id].possibleCards.push(this.turn[0]);
+    player.actGames[this.id].possibleCards.push(this.river[0]);
+    player.actGames[this.id].possibleCards.push(
       player.actGames[this.id].actHand[0]
     );
-    player.actGames[this.id].usedCards.push(
+    player.actGames[this.id].possibleCards.push(
       player.actGames[this.id].actHand[1]
     );
-    player.actGames[this.id].usedCards.sort();
+    //player.actGames[this.id].possibleCards.sort();
   }
 }

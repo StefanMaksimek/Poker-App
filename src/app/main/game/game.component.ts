@@ -230,13 +230,21 @@ export class GameComponent implements OnInit {
       console.log('############');
       console.log('Name', player.name);
       console.log('actHand', player.actGames[this.game.id].actHand);
-      console.log('usedHand', player.actGames[this.game.id].usedCards);
+      console.log('usedHand', player.actGames[this.game.id].possibleCards);
     });
   }
 
   test2() {
-    let hand = ['S2', 'H2', 'C2', 'D2', 'D8', 'Cq', 'Ha'];
+    let colorRanks = this.gameLog.cards.colors;
+    let numberRanks = this.gameLog.cards.numbers;
+    let hand = ['H2', 'H3', 'H4', 'Ha', 'H6', 'H7', 'H8'];
 
+    hand.sort(function (a: any, b: any) {
+      return (
+        numberRanks.indexOf(a.charAt(1)) - numberRanks.indexOf(b.charAt(1)) ||
+        colorRanks.indexOf(a.charAt(0)) - colorRanks.indexOf(b.charAt(0))
+      );
+    });
     this.gameLog.handAnalyzer(hand);
     console.log(this.gameLog.handAnalyzer(hand));
   }

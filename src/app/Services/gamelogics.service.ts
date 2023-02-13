@@ -25,6 +25,18 @@ export class GamelogicsService {
     'a',
   ];
 
+  winningHands = [
+    'Royal Flush',
+    'Straight Flush',
+    'Four of a Kind',
+    'Full House',
+    'Flush',
+    'Straight',
+    'Three of a Kind',
+    'Two Pair',
+    'One Pair',
+    'High Card',
+  ];
   playingStack: string[] = [];
 
   constructor() {}
@@ -71,7 +83,7 @@ export class GamelogicsService {
     return Math.random() * (max - min) + min;
   }
 
-  handAnalyzer(usedCards: any) {
+  handAnalyzer(possibleCards: any) {
     let royalFlush,
       straightFlush,
       fourOfAKind,
@@ -80,176 +92,181 @@ export class GamelogicsService {
       straight,
       threeOfAKind,
       twoPair,
-      onePair,
-      highCard;
-
-    console.log('checkOnePair', this.checkOnePair(usedCards));
-
-    if (this.isFourOfAKind(usedCards)) fourOfAKind = true;
-
-    if (this.isFullHouse(usedCards)) fullHouse = true;
-
-    if (this.isThreeOfAKind(usedCards)) threeOfAKind = true;
-
-    if (this.isTwoPair(usedCards)) twoPair = true;
-
-    if (this.isOnePair(usedCards)) onePair = true;
+      onePair;
 
     let winningHand;
-    if (royalFlush) {
+    if (
+      this.isStraight(possibleCards) &&
+      this.isFlush(possibleCards) &&
+      this.checkForStraight(possibleCards).hand[4] == 'a'
+    ) {
       winningHand = 'Royal Flush';
-    } else if (straightFlush) {
-      winningHand = 'Straight Flush';
-    } else if (fourOfAKind) {
-      winningHand = 'Four of a Kind ' + this.checkOnePair(usedCards)[0];
-    } else if (fullHouse) {
+    } else if (this.isStraight(possibleCards) && this.isFlush(possibleCards)) {
+      winningHand =
+        'Straight Flush ' +
+        'from ' +
+        this.checkForStraight(possibleCards).hand[0] +
+        ' to ' +
+        this.checkForStraight(possibleCards).hand[4];
+    } else if (this.isFourOfAKind(possibleCards)) {
+      winningHand = 'Four of a Kind ' + this.checkForPairs(possibleCards)[0];
+    } else if (this.isFullHouse(possibleCards)) {
       winningHand =
         'Full House ' +
-        this.checkOnePair(usedCards)[0] +
+        this.checkForPairs(possibleCards)[0] +
         ' & ' +
-        this.checkOnePair(usedCards)[2];
-    } else if (flush) {
-      winningHand = 'Flush';
-    } else if (straight) {
-      winningHand = 'Straight';
-    } else if (threeOfAKind) {
-      winningHand = 'Three of a Kind ' + this.checkOnePair(usedCards)[0];
-    } else if (twoPair) {
-      winningHand = 'Two Pair';
-    } else if (onePair) {
-      winningHand = 'One Pair ' + this.checkOnePair(usedCards)[0];
+        this.checkForPairs(possibleCards)[2];
+    } else if (this.isFlush(possibleCards)) {
+      winningHand = this.checkForFlush(possibleCards).name;
+    } else if (this.isStraight(possibleCards)) {
+      winningHand = this.checkForStraight(possibleCards).name;
+    } else if (this.isThreeOfAKind(possibleCards)) {
+      winningHand = 'Three of a Kind ' + this.checkForPairs(possibleCards)[0];
+    } else if (this.isTwoPair(possibleCards)) {
+      winningHand =
+        'Two Pair ' +
+        this.checkForPairs(possibleCards)[0] +
+        ' & ' +
+        this.checkForPairs(possibleCards)[1];
+    } else if (this.isOnePair(possibleCards)) {
+      winningHand = 'One Pair ' + this.checkForPairs(possibleCards)[0];
     } else {
-      winningHand = 'High Card';
+      winningHand = 'High Card ' + possibleCards[possibleCards.length - 1];
     }
     //return the winning hand
     return winningHand;
   }
 
-  checkOnePair(usedCards: any) {
+  checkForPairs(possibleCards: any) {
     let pair: any = [];
-    for (let i = 0; i < usedCards.length - 1; i++) {
-      if (usedCards[i].charAt(1) == usedCards[i + 1].charAt(1)) {
-        pair.push(usedCards[i].charAt(1));
+    /* for (let i = 0; i < possibleCards.length - 1; i++) {
+      if (possibleCards[i].charAt(1) == possibleCards[i + 1].charAt(1)) {
+        pair.push(possibleCards[i].charAt(1));
+      }
+    } */
+
+    for (let i = 0; i < possibleCards.length - 1; i++) {
+      if (possibleCards[i].charAt(1) == possibleCards[i + 1].charAt(1)) {
+        pair.push(possibleCards[i]);
+        pair.push(possibleCards[i + 1]);
       }
     }
+    pair = pair.filter(function (elem: any, index: any, self: any) {
+      return index === self.indexOf(elem);
+    });
     return pair;
   }
 
-  //function to check a hand in Texas holdem
-  checkHand(hand: any) {
-    //array of possible winning hands in order from highest to lowest
-    const winningHands = [
-      'Royal Flush',
-      'Straight Flush',
-      'Four of a Kind',
-      'Full House',
-      'Flush',
-      'Straight',
-      'Three of a Kind',
-      'Two Pair',
-      'One Pair',
-      'High Card',
-    ];
-    //convert given hand into an array
-    let handArray = hand.split(',');
-    //sort the array based on card ranks
-    handArray.sort(function (a: string, b: string) {
-      return ranks.indexOf(a.charAt(0)) - ranks.indexOf(b.charAt(0));
+  checkForStraight(possibleCards: any) {
+    let streetArr: any = [];
+    possibleCards.forEach((card: any) => {
+      streetArr.push(card.charAt(1));
     });
-    //array of possible card ranks
-    let ranks = [
-      '2',
-      '3',
-      '4',
-      '5',
-      '6',
-      '7',
-      '8',
-      '9',
-      'T',
-      'J',
-      'Q',
-      'K',
-      'A',
-    ];
-    //determine if the hand is a royal flush
-    let royalFlush = false;
-    if (
-      handArray[0].charAt(0) === 'T' &&
-      handArray[1].charAt(0) === 'J' &&
-      handArray[2].charAt(0) === 'Q' &&
-      handArray[3].charAt(0) === 'K' &&
-      handArray[4].charAt(0) === 'A'
-    ) {
-      royalFlush = true;
-    }
-    //determine if the hand is a straight flush
-    let straightFlush = false;
-    if (
-      handArray[4].charAt(0) ===
-        ranks[ranks.indexOf(handArray[0].charAt(0)) + 4] &&
-      handArray[0].charAt(1) === handArray[1].charAt(1) &&
-      handArray[1].charAt(1) === handArray[2].charAt(1) &&
-      handArray[2].charAt(1) === handArray[3].charAt(1) &&
-      handArray[3].charAt(1) === handArray[4].charAt(1)
-    ) {
-      straightFlush = true;
-    }
-
-    //determine if the hand is a flush
-    let flush = false;
-    if (
-      handArray[0].charAt(1) === handArray[1].charAt(1) &&
-      handArray[1].charAt(1) === handArray[2].charAt(1) &&
-      handArray[2].charAt(1) === handArray[3].charAt(1) &&
-      handArray[3].charAt(1) === handArray[4].charAt(1)
-    ) {
-      flush = true;
-    }
-    //determine if the hand is a straight
-    let straight = false;
-    if (
-      handArray[4].charAt(0) ===
-      ranks[ranks.indexOf(handArray[0].charAt(0)) + 4]
-    ) {
-      straight = true;
-    }
+    streetArr = streetArr.filter(function (elem: any, index: any, self: any) {
+      return index === self.indexOf(elem);
+    });
+    //return streetArr;
+    return {
+      hand: streetArr,
+      name:
+        'Straight from ' +
+        this.nameNumbers(streetArr[0].charAt(1)) +
+        ' to ' +
+        this.nameNumbers(streetArr[4].charAt(1)),
+    };
   }
 
-  isFourOfAKind(usedCards: any) {
+  checkForFlush(possibleCards: any) {
+    let colors: any = this.cards.colors;
+    let flushArr: any = [];
+    colors.forEach((color: any) => {
+      let x = 0;
+      let testArr: any = [];
+      possibleCards.forEach((card: any) => {
+        if (card.charAt(0) == color) {
+          testArr.push(card);
+          x++;
+        }
+      });
+      console.log(x);
+
+      if (x >= 5) {
+        flushArr = testArr;
+      }
+    });
+    return {
+      hand: flushArr,
+      name: this.nameFlushHand(flushArr),
+    };
+  }
+
+  isFourOfAKind(possibleCards: any) {
     return (
-      this.checkOnePair(usedCards).length == 3 &&
-      this.checkOnePair(usedCards)[0] == this.checkOnePair(usedCards)[2]
+      this.checkForPairs(possibleCards).length == 3 &&
+      this.checkForPairs(possibleCards)[0] ==
+        this.checkForPairs(possibleCards)[2]
     );
   }
 
-  isFullHouse(usedCards: any) {
+  isFullHouse(possibleCards: any) {
     return (
-      this.checkOnePair(usedCards).length == 3 &&
-      this.checkOnePair(usedCards)[0] != this.checkOnePair(usedCards)[2]
+      this.checkForPairs(possibleCards).length == 3 &&
+      this.checkForPairs(possibleCards)[0] !=
+        this.checkForPairs(possibleCards)[2]
     );
   }
 
-  isFlush(usedCards: any) {
-    return 'torte';
+  isFlush(possibleCards: any) {
+    return this.checkForFlush(possibleCards).hand.length >= 5;
+  }
+  nameFlushHand(flushArr: any) {
+    if (flushArr.length >= 5) {
+      return (
+        'Flush with high card ' +
+        this.nameNumbers(flushArr[flushArr.length - 1].charAt(1))
+      );
+    } else {
+      return 'torte';
+    }
   }
 
-  isStraight(usedCards: any) {
-    return 'torte';
+  isStraight(possibleCards: any) {
+    return this.checkForStraight(possibleCards).hand == 5;
   }
 
-  isThreeOfAKind(usedCards: any) {
-    return this.checkOnePair(usedCards).length == 2;
-  }
-
-  isTwoPair(usedCards: any) {
+  isThreeOfAKind(possibleCards: any) {
     return (
-      this.checkOnePair(usedCards).length == 2 &&
-      this.checkOnePair(usedCards)[0] != this.checkOnePair(usedCards)[1]
+      this.checkForPairs(possibleCards).length == 2 &&
+      this.checkForPairs(possibleCards)[0] ==
+        this.checkForPairs(possibleCards)[1]
     );
   }
 
-  isOnePair(usedCards: any) {
-    return this.checkOnePair(usedCards).length == 1;
+  isTwoPair(possibleCards: any) {
+    return (
+      this.checkForPairs(possibleCards).length == 2 &&
+      this.checkForPairs(possibleCards)[0] !=
+        this.checkForPairs(possibleCards)[1]
+    );
+  }
+
+  isOnePair(possibleCards: any) {
+    return this.checkForPairs(possibleCards).length == 1;
+  }
+
+  nameNumbers(cardNumber: string) {
+    if (cardNumber == 'a') {
+      return 'Ace';
+    } else if (cardNumber == 'k') {
+      return 'King';
+    } else if (cardNumber == 'q') {
+      return 'Qeen';
+    } else if (cardNumber == 'j') {
+      return 'Jack';
+    } else if (cardNumber == 't') {
+      return '10';
+    } else {
+      return cardNumber;
+    }
   }
 }
