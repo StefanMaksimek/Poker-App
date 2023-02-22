@@ -16,11 +16,18 @@ export class Game {
   public turn: string[] = [];
   public river: string[] = [];
   public endOfRound: boolean = false;
+  public playerHands: any = [];
+  public winningHand: any = [];
+  public winningPlayer: any = [];
 
   public blinds: number[] = [50, 100];
   public bets: string[] = [];
   public lastBet: number = 300;
   public pot: number = 7000;
+
+  public lastPot: any = 9999;
+  public lastWinningHand: any = 'Torte';
+  public lastWinningPlayer: any = ['Torten'];
 
   constructor(private gameLog: GamelogicsService) {}
   public toJson() {
@@ -39,6 +46,50 @@ export class Game {
     };
   }
 
+  getHandInfo(id: any) {
+    let colorRanks = this.gameLog.cards.colors;
+    let numberRanks = this.gameLog.cards.numbers;
+    let playerCards: any = this.getLoggedInUserHand(id);
+    let possibleCards = [
+      this.flop[0],
+      this.flop[1],
+      this.flop[2],
+      this.turn[0],
+      this.river[0],
+    ];
+    if (this.flop.length > 2) {
+      possibleCards = [this.flop[0], this.flop[1], this.flop[2]];
+      if (this.turn.length > 1) {
+        possibleCards.push(this.turn[0]);
+      }
+      if (this.river.length > 1) {
+        possibleCards.push(this.river[0]);
+      }
+      playerCards.forEach((card: any) => {
+        possibleCards.push(card);
+      });
+      possibleCards.sort(function (a: any, b: any) {
+        return (
+          numberRanks.indexOf(a.charAt(1)) - numberRanks.indexOf(b.charAt(1)) ||
+          colorRanks.indexOf(a.charAt(0)) - colorRanks.indexOf(b.charAt(0))
+        );
+      });
+      return this.gameLog.handAnalyzer(possibleCards).handInfo;
+    } else {
+      return null;
+    }
+  }
+
+  getLoggedInUserHand(id: any) {
+    let hand = null;
+    this.players.forEach((player: any) => {
+      if (player.id == id) {
+        hand = player.actGames[this.id].actHand;
+      }
+    });
+    return hand;
+  }
+
   startNewRound() {
     this.playerInRound = [];
     this.players.forEach((player) => {
@@ -55,8 +106,12 @@ export class Game {
 
   newBetRound() {
     if (this.river.length > 0) {
-      //this.startNewRound();
       this.checkWinningHand();
+      this.potToWinningPlayer();
+      setTimeout(() => {
+        this.endOfRound = false;
+        this.startNewRound();
+      }, 3000);
     } else {
       if (this.flop.length == 0) {
         this.renderFlop();
@@ -75,6 +130,16 @@ export class Game {
       this.curentPlayerInRound = this.curentPlayerRound;
       this.nextPlayerInRound();
     }
+  }
+
+  potToWinningPlayer() {
+    let win = this.pot / this.winningPlayer.length;
+    this.winningPlayer.forEach((player: any, index: number) => {
+      this.players[player.seat].actGames[this.id].stack =
+        this.players[player.seat].actGames[this.id].stack + win;
+    });
+    this.winningHand = [];
+    this.winningPlayer = [];
   }
 
   nextPlayerInRound() {
@@ -195,6 +260,11 @@ export class Game {
     this.endOfRound = true;
     this.players.forEach((player) => {
       this.setUsedHand(player);
+      console.log(
+        'player.actGames[this.id].possibleCards',
+        player.actGames[this.id].possibleCards
+      );
+      console.log('player.actGames[this.id].possibleCards', player.playerName);
 
       player.actGames[this.id].possibleCards.sort(function (a: any, b: any) {
         return (
@@ -207,23 +277,39 @@ export class Game {
         player.actGames[this.id].hand = this.gameLog.handAnalyzer(
           player.actGames[this.id].possibleCards
         );
-        console.log(
-          'Player: ',
-          player.name,
-          'possibleCards',
+        let playerHand = this.gameLog.handAnalyzer(
           player.actGames[this.id].possibleCards
         );
-        console.log(
-          'Player: ',
-          player.name,
-          'Hand',
-          player.actGames[this.id].hand
-        );
+
+        this.playerHands.push({
+          playerName: player.name,
+          seat: player.actGames[this.id].seat,
+          hand: playerHand.hand,
+          name: playerHand.name,
+          handInfo: playerHand.handInfo,
+          kickers: playerHand.kickers,
+          pairs: playerHand.pairs ? playerHand.pairs : [],
+        });
       }
     });
+    this.winningHand = this.gameLog.winAnalyzer(
+      this.playerHands
+    ).winners[0].handInfo;
+    this.winningPlayer = this.gameLog.winAnalyzer(this.playerHands).winners;
+
+    this.lastBet = this.pot;
+    this.lastWinningHand = this.winningHand;
+    this.lastWinningPlayer = [];
+    this.winningPlayer.forEach((player: any, index: number) => {
+      this.lastWinningPlayer.push(player.playerName);
+      this.lastPot = this.pot;
+    });
+    console.log('winningPlayer', this.winningPlayer);
   }
 
   setUsedHand(player: any) {
+    console.log(player);
+    player.actGames[this.id].possibleCards = [];
     player.actGames[this.id].possibleCards.push(this.flop[0]);
     player.actGames[this.id].possibleCards.push(this.flop[1]);
     player.actGames[this.id].possibleCards.push(this.flop[2]);
@@ -235,6 +321,5 @@ export class Game {
     player.actGames[this.id].possibleCards.push(
       player.actGames[this.id].actHand[1]
     );
-    //player.actGames[this.id].possibleCards.sort();
   }
 }

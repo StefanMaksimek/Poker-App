@@ -3,13 +3,18 @@
   height: calc(100vh - $spacing-XL);
   position: relative;
 
-  .test-buttons {
+  .game-info {
     position: absolute;
     z-index: 9999;
     top: 20px;
-    display: flex;
-    justify-content: center;
-    button {
+    .test-buttons {
+      display: flex;
+      justify-content: center;
+      button {
+        margin: 8px;
+      }
+    }
+    .last {
       margin: 8px;
     }
   }
