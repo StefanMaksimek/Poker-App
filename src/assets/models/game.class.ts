@@ -10,6 +10,7 @@ export class Game {
   public curentPlayerRound: number = 0;
   public playerInRound: any[] = [];
   public curentPlayerInRound: number = 0;
+  public betValue: number = 0;
 
   public playingStack: any = [];
   public flop: string[] = [];
@@ -22,7 +23,7 @@ export class Game {
 
   public blinds: number[] = [50, 100];
   public bets: string[] = [];
-  public lastBet: number = 300;
+  public lastBet: number = 0;
   public pot: number = 7000;
 
   public lastPot: any = 9999;
@@ -50,13 +51,7 @@ export class Game {
     let colorRanks = this.gameLog.cards.colors;
     let numberRanks = this.gameLog.cards.numbers;
     let playerCards: any = this.getLoggedInUserHand(id);
-    let possibleCards = [
-      this.flop[0],
-      this.flop[1],
-      this.flop[2],
-      this.turn[0],
-      this.river[0],
-    ];
+    let possibleCards = [];
     if (this.flop.length > 2) {
       possibleCards = [this.flop[0], this.flop[1], this.flop[2]];
       if (this.turn.length > 1) {
@@ -90,24 +85,78 @@ export class Game {
     return hand;
   }
 
+  getcurrentUserID(id: any) {
+    console.log(
+      'this.curentPlayerInRound',
+      this.curentPlayerInRound,
+      'getcurrentUserID'
+    );
+
+    let userId = this.players[this.curentPlayerInRound].id;
+
+    return userId;
+  }
+
+  nextPlayerInRound() {
+    if (this.checkHandsInGame() < 3) {
+      this.potToLastPlayerInRound();
+      this.startNewRound();
+    } else {
+      this.curentPlayerInRound == this.playerInRound.length - 1
+        ? (this.curentPlayerInRound = 0)
+        : this.curentPlayerInRound++;
+      this.nextIfCannotHandlNew();
+    }
+  }
+
+  nextIfCannotHandlNew() {
+    let player = this.players[this.curentPlayerInRound].actGames[this.id];
+    if (player.wasAktive) {
+      this.newBetRound();
+    } else if (player.stack <= 0 || player.actHand.length == 0) {
+      this.nextPlayerInRound();
+    }
+  }
+
   startNewRound() {
     this.playerInRound = [];
-    this.players.forEach((player) => {
-      this.playerInRound.push(player.actGames[this.id].seat);
-      player.actGames[this.id].actHand = [];
-      player.actGames[this.id].bet = 0;
-    });
+    this.wasAktiveTofalse();
+    this.checkedTofalse();
     this.renderStack();
+    this.deletePlayerWithNoStack();
+    this.updateGameInfoForPlayer();
+
     this.dealCards();
-    this.pot = 0;
     this.nextPlayerAfterRound();
     this.lastBet = this.blinds[1];
   }
 
+  updateGameInfoForPlayer() {
+    this.players.forEach((player, index) => {
+      player.actGames[this.id].actHand = [];
+      player.actGames[this.id].hand = '';
+      player.actGames[this.id].seat = index;
+      player.actGames[this.id].bet = 0;
+      this.playerInRound.push(player.actGames[this.id].seat);
+    });
+  }
+
+  deletePlayerWithNoStack() {
+    this.players.forEach((player: any) => {
+      if (player.actGames[this.id].stack == 0) {
+        this.players.splice(player.actGames[this.id].seat, 1);
+      }
+    });
+  }
+
   newBetRound() {
+    this.setSidePot();
+    this.wasAktiveTofalse();
     if (this.river.length > 0) {
+      this.endOfRound = true;
       this.checkWinningHand();
       this.potToWinningPlayer();
+
       setTimeout(() => {
         this.endOfRound = false;
         this.startNewRound();
@@ -132,30 +181,45 @@ export class Game {
     }
   }
 
+  setSidePot() {
+    let sidePot: any = [];
+    let bets: any = [];
+    this.players.forEach((player) => {
+      let pl = player.actGames[this.id];
+      console.log('pl.actHand', pl.actHand);
+      console.log('pl.bet', pl.bet);
+
+      if (pl.actHand.length > 0) {
+        bets.push(pl.bet);
+      }
+    });
+    console.log('sidePot', sidePot);
+    console.log('bets', bets);
+
+    for (let i = 0; i < bets.length; i++) {
+      const element = bets[i];
+    }
+  }
+
+  potToLastPlayerInRound() {
+    this.players[this.curentPlayerInRound].actGames[this.id].stack += this.pot;
+    this.lastPot = this.pot;
+    this.pot = 0;
+    this.lastWinningPlayer = this.players[this.curentPlayerInRound].name;
+    this.lastWinningHand = 'other folded';
+  }
+
   potToWinningPlayer() {
     let win = this.pot / this.winningPlayer.length;
     this.winningPlayer.forEach((player: any, index: number) => {
       this.players[player.seat].actGames[this.id].stack =
         this.players[player.seat].actGames[this.id].stack + win;
     });
+    this.lastPot = this.pot;
+    this.pot = 0;
+
     this.winningHand = [];
     this.winningPlayer = [];
-  }
-
-  nextPlayerInRound() {
-    let player = this.players[this.curentPlayerInRound].actGames[this.id];
-
-    if (this.checkHandsInGame() < 3) {
-      this.startNewRound();
-    } else {
-      this.curentPlayerInRound == this.playerInRound.length - 1
-        ? (this.curentPlayerInRound = 0)
-        : this.curentPlayerInRound++;
-
-      if (this.noHand(this.curentPlayerInRound)) {
-        this.nextPlayerInRound();
-      }
-    }
   }
 
   nextPlayerAfterRound() {
@@ -168,6 +232,20 @@ export class Game {
     this.nextPlayerInRound();
     this.setBlinds(this.curentPlayerInRound, 1);
     this.nextPlayerInRound();
+  }
+
+  checkedTofalse() {
+    this.players.forEach((player: any) => {
+      player.actGames[this.id].checked = false;
+    });
+  }
+
+  wasAktiveTofalse() {
+    this.players.forEach((player: any) => {
+      if (player.actGames[this.id].stack > 0) {
+        player.actGames[this.id].wasAktive = false;
+      }
+    });
   }
 
   renderFlop() {
@@ -218,18 +296,18 @@ export class Game {
   }
 
   setGameInfoToPlayer() {
-    let id = this.id;
     this.players.forEach((player, index) => {
-      player.actGames[id] = {
+      player.actGames[this.id] = {
         stack: this.startingStack,
         actHand: [],
         possibleCards: [],
         usedCards: [],
         hand: '',
         seat: index,
-        bet: 300,
+        bet: 0,
         isBB: false,
         checked: false,
+        wasAktive: false,
       };
     });
   }
@@ -256,16 +334,9 @@ export class Game {
   checkWinningHand() {
     let colorRanks = this.gameLog.cards.colors;
     let numberRanks = this.gameLog.cards.numbers;
-
-    this.endOfRound = true;
+    this.playerHands = [];
     this.players.forEach((player) => {
       this.setUsedHand(player);
-      console.log(
-        'player.actGames[this.id].possibleCards',
-        player.actGames[this.id].possibleCards
-      );
-      console.log('player.actGames[this.id].possibleCards', player.playerName);
-
       player.actGames[this.id].possibleCards.sort(function (a: any, b: any) {
         return (
           numberRanks.indexOf(a.charAt(1)) - numberRanks.indexOf(b.charAt(1)) ||
@@ -280,6 +351,7 @@ export class Game {
         let playerHand = this.gameLog.handAnalyzer(
           player.actGames[this.id].possibleCards
         );
+        console.log('playerHands', this.playerHands);
 
         this.playerHands.push({
           playerName: player.name,
@@ -290,6 +362,7 @@ export class Game {
           kickers: playerHand.kickers,
           pairs: playerHand.pairs ? playerHand.pairs : [],
         });
+        console.log('playerHands', this.playerHands);
       }
     });
     this.winningHand = this.gameLog.winAnalyzer(
@@ -304,11 +377,9 @@ export class Game {
       this.lastWinningPlayer.push(player.playerName);
       this.lastPot = this.pot;
     });
-    console.log('winningPlayer', this.winningPlayer);
   }
 
   setUsedHand(player: any) {
-    console.log(player);
     player.actGames[this.id].possibleCards = [];
     player.actGames[this.id].possibleCards.push(this.flop[0]);
     player.actGames[this.id].possibleCards.push(this.flop[1]);

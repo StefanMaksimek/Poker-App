@@ -288,8 +288,6 @@ export class GamelogicsService {
   }
 
   handAnalyzer(possibleCards: any): any {
-    console.log('handAnalyzer', possibleCards);
-
     let handInfo;
     if (
       this.isStraight(this.checkForFlush(possibleCards).hand) &&

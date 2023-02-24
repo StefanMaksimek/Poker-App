@@ -94,8 +94,22 @@ export class GameComponent implements OnInit {
   }
 
   setBetValue() {
-    this.betValue =
-      this.game.lastBet > 0 ? this.game.lastBet * 2 : this.game.blinds[1];
+    let betValue;
+    let player =
+      this.game.players[this.game.curentPlayerInRound].actGames[this.game.id];
+    if (this.game.lastBet > 0) {
+      if (this.game.lastBet * 2 < player.stack - player.bet) {
+        betValue = this.game.lastBet * 2;
+      } else {
+        betValue = player.stack - player.bet;
+      }
+    } else {
+      betValue = this.game.blinds[1];
+    }
+
+    this.betValue = betValue;
+
+    //this.game.lastBet > 0 ? this.game.lastBet * 2 : this.game.blinds[1];
   }
 
   placeAround(i: number) {
@@ -145,14 +159,15 @@ export class GameComponent implements OnInit {
       this.game.id
     ].actHand = [];
 
-    this.nextPlayerAfterAction();
+    //this.nextPlayerAfterAction();
+    this.game.nextPlayerInRound();
+    this.setBetValue();
   }
 
-  call() {
+  callOld() {
     console.log('call');
     let player =
       this.game.players[this.game.curentPlayerInRound].actGames[this.game.id];
-    console.log('CallPlayerCards', player.actHand);
 
     let stack = player.stack;
 
@@ -168,32 +183,44 @@ export class GameComponent implements OnInit {
       ].stack = 0;
     }
 
-    this.nextPlayerAfterAction();
+    player.wasAktive = true;
+    this.game.nextPlayerInRound();
+    this.setBetValue();
+  }
+
+  call() {
+    console.log('call');
+    let player =
+      this.game.players[this.game.curentPlayerInRound].actGames[this.game.id];
+
+    if (player.stack > this.game.lastBet - player.bet) {
+      player.stack -= this.game.lastBet + player.bet;
+      this.game.pot = this.game.pot - player.bet + this.game.lastBet;
+      player.bet = this.game.lastBet;
+    } else {
+      this.game.pot = this.game.pot - player.bet + player.stack;
+      player.bet = player.stack;
+      this.game.players[this.game.curentPlayerInRound].actGames[
+        this.game.id
+      ].stack = 0;
+    }
+
+    player.wasAktive = true;
+    this.game.nextPlayerInRound();
+    this.setBetValue();
   }
 
   check() {
-    if (
-      this.game.players[this.game.curentPlayerInRound].actGames[this.game.id]
-        .isBB
-    ) {
+    let player =
+      this.game.players[this.game.curentPlayerInRound].actGames[this.game.id];
+    if (player.isBB) {
       this.game.newBetRound();
     } else {
-      this.game.players[this.game.curentPlayerInRound].actGames[
-        this.game.id
-      ].checked = true;
+      player.checked = true;
+      player.wasAktive = true;
       this.game.nextPlayerInRound();
-      if (
-        this.game.players[this.game.curentPlayerInRound].actGames[this.game.id]
-          .checked
-      ) {
-        this.game.newBetRound();
-      }
     }
-    console.log(
-      'Check PlayerCards',
-      this.game.players[this.game.curentPlayerInRound].actGames[this.game.id]
-        .actHand
-    );
+    this.setBetValue();
   }
 
   bet() {
@@ -207,17 +234,11 @@ export class GameComponent implements OnInit {
     player.bet = this.betValue;
     this.game.lastBet = this.betValue;
     this.game.pot = this.game.pot + this.betValue;
-    this.nextPlayerAfterAction();
-  }
+    this.game.wasAktiveTofalse();
+    player.wasAktive = true;
 
-  nextPlayerAfterAction() {
+    this.game.checkedTofalse();
     this.game.nextPlayerInRound();
-
-    let newPlayer =
-      this.game.players[this.game.curentPlayerInRound].actGames[this.game.id];
-    if (newPlayer.bet == this.game.lastBet && !newPlayer.isBB) {
-      this.game.newBetRound();
-    }
     this.setBetValue();
   }
 

@@ -25,11 +25,12 @@
       Last winner: {{ game.lastWinningPlayer }} <br />
       Last Pot: {{ game.lastPot }}
     </div>
+    this.curentPlayerInRound = {{ game.curentPlayerInRound }}
   </div>
 
   <div
     class="action-holder"
-    *ngIf="game.players[game.curentPlayerInRound].id == logedInUser.id"
+    *ngIf="game.getcurrentUserID(logedInUser.id) == logedInUser.id"
   >
     <div class="hand-info">
       {{ game.getHandInfo(logedInUser.id) }}
@@ -160,11 +161,8 @@
       "
     >
       <button mat-flat-button color="primary" (click)="setBet(33)">33%</button>
-
       <button mat-flat-button color="primary" (click)="setBet(50)">50%</button>
-
       <button mat-flat-button color="primary" (click)="setBet(100)">Pot</button>
-
       <button mat-flat-button color="primary" (click)="setBet(200)">
         2x Pot
       </button>
@@ -260,7 +258,25 @@
           game.players[game.curentPlayerInRound].actGames[game.id].stack
         "
       >
-        <div *ngIf="game.lastBet > 0" class="action-btn">
+        <div
+          *ngIf="
+            game.lastBet >
+            game.players[game.curentPlayerInRound].actGames[game.id].stack
+          "
+          class="action-btn"
+        >
+          <span>Raise to</span>
+          <span>All In</span>
+        </div>
+
+        <div
+          *ngIf="
+            game.lastBet > 0 &&
+            game.lastBet <
+              game.players[game.curentPlayerInRound].actGames[game.id].stack
+          "
+          class="action-btn"
+        >
           <span>Raise to</span>
           <span>{{ betValue }}</span>
         </div>
@@ -433,7 +449,6 @@
               src="../../../assets/img/cards/{{
                 player.actGames[game.id].actHand[0]
               }}.png"
-              alt=""
             />
           </div>
 
@@ -442,7 +457,6 @@
               src="../../../assets/img/cards/{{
                 player.actGames[game.id].actHand[1]
               }}.png"
-              alt=""
             />
           </div>
         </div>
