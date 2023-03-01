@@ -101,7 +101,7 @@ export class GameComponent implements OnInit {
       if (this.game.lastBet * 2 < player.stack - player.bet) {
         betValue = this.game.lastBet * 2;
       } else {
-        betValue = player.stack - player.bet;
+        betValue = player.stack + player.bet;
       }
     } else {
       betValue = this.game.blinds[1];
@@ -194,15 +194,13 @@ export class GameComponent implements OnInit {
       this.game.players[this.game.curentPlayerInRound].actGames[this.game.id];
 
     if (player.stack > this.game.lastBet - player.bet) {
-      player.stack -= this.game.lastBet + player.bet;
+      player.stack = player.stack - this.game.lastBet + player.bet;
       this.game.pot = this.game.pot - player.bet + this.game.lastBet;
       player.bet = this.game.lastBet;
     } else {
-      this.game.pot = this.game.pot - player.bet + player.stack;
-      player.bet = player.stack;
-      this.game.players[this.game.curentPlayerInRound].actGames[
-        this.game.id
-      ].stack = 0;
+      this.game.pot = this.game.pot + player.bet + player.stack;
+      player.bet = player.bet + player.stack;
+      player.stack = 0;
     }
 
     player.wasAktive = true;

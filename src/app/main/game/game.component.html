@@ -151,7 +151,7 @@
     </div>
   </div>
 
-  <div class="action-holder-tester" *ngIf="!game.endOfRound">
+  <div class="action-holder-tester" *ngIf="!game.isEndOfRound">
     <div
       class="top"
       *ngIf="
@@ -288,7 +288,13 @@
       </button>
     </div>
 
-    <div class="cards">
+    <div
+      class="cards"
+      *ngIf="
+        game.players[game.curentPlayerInRound].actGames[game.id].actHand
+          .length > 0
+      "
+    >
       <div class="left">
         <img
           src="../../../assets/img/cards/{{
@@ -440,11 +446,11 @@
           *ngIf="
             (player.actGames[game.id].actHand.length > 0 &&
               player.id == logedInUser.id) ||
-            game.endOfRound
+            game.isEndOfRound
           "
           class="cards"
         >
-          <div class="left">
+          <div class="left" *ngIf="player.actGames[game.id].actHand.length > 0">
             <img
               src="../../../assets/img/cards/{{
                 player.actGames[game.id].actHand[0]
@@ -452,7 +458,10 @@
             />
           </div>
 
-          <div class="right">
+          <div
+            class="right"
+            *ngIf="player.actGames[game.id].actHand.length > 0"
+          >
             <img
               src="../../../assets/img/cards/{{
                 player.actGames[game.id].actHand[1]
@@ -465,7 +474,7 @@
           *ngIf="
             player.id != logedInUser.id &&
             player.actGames[game.id].actHand.length > 0 &&
-            !game.endOfRound
+            !game.isEndOfRound
           "
           class="cards"
         >
@@ -517,7 +526,7 @@
     </div>
   </div>
 
-  <div class="winning-hand" *ngIf="game.endOfRound">
+  <div class="winning-hand" *ngIf="game.isEndOfRound">
     <div class="community-cards">
       <span
         >Flop: {{ game.flop[0] }} - {{ game.flop[1] }} -
